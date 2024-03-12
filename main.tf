@@ -66,6 +66,8 @@ resource "azurerm_mysql_flexible_server" "mysql_prod" {
     start_hour   = var.maintenance_start_hour
     start_minute = var.maintenance_start_minute
   }
+
+  depends_on = [ azurerm_private_dns_zone.mysql_dns_prod_zone, azurerm_private_dns_zone_virtual_network_link.mysql_prod_dns_link ]
 }
 
 resource "azurerm_mysql_flexible_server_firewall_rule" "mysql_prod_fw_rule" {
