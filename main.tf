@@ -44,6 +44,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "mysql_prod_dns_link" {
   private_dns_zone_name = azurerm_private_dns_zone.mysql_dns_prod_zone.name
   virtual_network_id    = var.virtual_network_id
   resource_group_name   = var.resource_group_name
+
+  depends_on = [ azurerm_private_dns_zone.mysql_dns_prod_zone ]
 }
 
 resource "azurerm_mysql_flexible_server" "mysql_prod" {
@@ -67,7 +69,7 @@ resource "azurerm_mysql_flexible_server" "mysql_prod" {
     start_minute = var.maintenance_start_minute
   }
 
-  depends_on = [ azurerm_private_dns_zone.mysql_dns_prod_zone, azurerm_private_dns_zone_virtual_network_link.mysql_prod_dns_link ]
+  depends_on = [ azurerm_private_dns_zone_virtual_network_link.mysql_prod_dns_link ]
 }
 
 resource "azurerm_mysql_flexible_server_firewall_rule" "mysql_prod_fw_rule" {
