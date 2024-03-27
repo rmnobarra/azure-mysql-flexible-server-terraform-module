@@ -1,13 +1,3 @@
-# Generate random resource group name
-resource "random_pet" "rg_name" {
-  prefix = var.resource_group_name_prefix
-}
-
-resource "azurerm_resource_group" "rg" {
-  location = var.resource_group_location
-  name     = random_pet.rg_name.id
-}
-
 # Generate random value for the name
 resource "random_string" "name" {
   length  = 8
@@ -31,20 +21,12 @@ resource "random_password" "password" {
   upper            = true
 }
 
-# Manages the Virtual Network
-resource "azurerm_virtual_network" "default" {
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  name                = "vnet-${random_string.name.result}"
-  resource_group_name = azurerm_resource_group.rg.name
-}
-
 # Manages the Subnet
 resource "azurerm_subnet" "default" {
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = ["10.10.5.0/24"]
   name                 = "subnet-${random_string.name.result}"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.default.name
+  resource_group_name  = "grupo-well"
+  virtual_network_name = "vnet-east-us-2"
   service_endpoints    = ["Microsoft.Storage"]
 
   delegation {
@@ -62,24 +44,24 @@ resource "azurerm_subnet" "default" {
 # Enables you to manage Private DNS zones within Azure DNS
 resource "azurerm_private_dns_zone" "default" {
   name                = "${random_string.name.result}.mysql.database.azure.com"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = "grupo-well"
 }
 
 # Enables you to manage Private DNS zone Virtual Network Links
 resource "azurerm_private_dns_zone_virtual_network_link" "default" {
   name                  = "mysqlfsVnetZone${random_string.name.result}.com"
   private_dns_zone_name = azurerm_private_dns_zone.default.name
-  resource_group_name   = azurerm_resource_group.rg.name
-  virtual_network_id    = azurerm_virtual_network.default.id
+  resource_group_name   = "grupo-well"
+  virtual_network_id    = "/subscriptions/e2e30b73-f393-4063-9659-de191298348f/resourceGroups/grupo-well/providers/Microsoft.Network/virtualNetworks/vnet-east-us-2"
 
   depends_on = [azurerm_subnet.default]
 }
 
 # Manages the MySQL Flexible Server
 resource "azurerm_mysql_flexible_server" "default" {
-  location                     = azurerm_resource_group.rg.location
+  location                     = "eastus2"
   name                         = "mysqlfs-${random_string.name.result}"
-  resource_group_name          = azurerm_resource_group.rg.name
+  resource_group_name          = "grupo-well"
   administrator_login          = random_string.name.result
   administrator_password       = random_password.password.result
   backup_retention_days        = 7

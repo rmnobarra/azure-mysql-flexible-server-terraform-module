@@ -14,7 +14,3 @@ output "admin_password" {
 output "mysql_flexible_server_database_name" {
   value = azurerm_mysql_flexible_database.main.name
 }
-
-output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
-}
